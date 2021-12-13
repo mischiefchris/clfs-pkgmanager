@@ -1,0 +1,31 @@
+#!/bin/sh
+# Maintainer: mischief chris <mischiefchristophe@gmail.com>
+
+package="man-db man-pages"
+makedepends=""
+depends=""
+source="http://download.savannah.gnu.org/releases/man-db/man-db-2.9.4.tar.xz
+	https://www.kernel.org/pub/linux/docs/man-pages/man-pages-5.10.tar.xz"
+
+man_db() {
+
+version=2.9.4
+
+	./configure --prefix=/usr                \
+            --docdir=/usr/share/doc/man-db-2.9.4 \
+            --sysconfdir=/etc                    \
+            --disable-setuid                     \
+            --enable-cache-owner=bin             \
+            --with-browser=/usr/bin/lynx         \
+            --with-vgrind=/usr/bin/vgrind        \
+            --with-grap=/usr/bin/grap            \
+            --with-systemdtmpfilesdir=           \
+            --with-systemdsystemunitdir=
+	make
+	make DESTDIR=$INSTALL_DIR install
+}
+
+man_pages() {
+
+	make DESTDIR=$INSTALL_DIR install
+}

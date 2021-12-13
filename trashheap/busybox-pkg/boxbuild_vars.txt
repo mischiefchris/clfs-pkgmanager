@@ -1,0 +1,53 @@
+
+Mandatory variables are pkgname, pkgver, pkgrel, and arch
+
+This is a minimal example of the DEBIAN/control file:
+
+Package: mypkg
+Version: 1.0.0
+Maintainer: Your Name <you@example.com>
+Description: My test package, please ignore
+Homepage: https://github.com/username/projectname
+Architecture: all
+Depends:
+
+
+    fetch()
+    unpack()
+    pack()
+
+    prepare()
+    build()
+    check()
+    package()
+
+    startdir
+    srcdir
+    pkgdir
+    subpkgdir
+    builddir
+
+    pkgname
+    pkgver
+    pkgrel
+    epoch
+    pkgdesc
+    arch
+    url
+    license
+    section
+    depends
+    makedepends
+    checkdepends
+    optdepends
+    conflicts
+    replaces
+    provides
+    backup
+    options
+    install
+    source
+    md5sums
+    sha256sums
+    triggers
+

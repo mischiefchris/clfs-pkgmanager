@@ -1,0 +1,89 @@
+#!/bin/sh
+# boxbuild: a shell package builder
+
+set -e
+
+echo "$0"
+
+PWD=$(pwd)
+CONFIG=boxbuild.config
+FUNCTIONS=boxbuild.functions
+BUILDSCRIPT="$1"
+VERSION=1.1
+
+if ! [ -f $CONFIG ]; then
+	echo "ERROR: CONFIG FILE $CONFIG Not Found"
+	exit 1
+else
+	. ./$CONFIG
+fi
+
+if ! [ -f $FUNCTIONS ]; then
+        echo "ERROR: FUNCTIONS FILE $FUNCTIONS Not Found"
+        exit 1
+else
+        . ./$FUNCTIONS
+fi
+
+check_function() {
+	type "$1" 2>&1 | head -n 1 | egrep -q "is a (shell )?function"
+}
+
+sanitycheck() {
+	# if package is missing exit
+	[ -z "$package" ] && die "Missing package= in file/buildscript: $BUILDSCRIPT"
+	# run tests on bad package and subpackage names and exit if not a valid name
+	for i in $package $subpackage; do
+                case $i in
+                -*) die "${i%%:*} This is not a valid package name: Can't start with a hyphen";;
+		_*) die "${i%%:*} This is not a valid package name: Can't start with a underscore";;
+                esac
+        done
+	# check that all package and subpackage functions exist
+	for f in $package $subpackage; do
+	eval "$(echo $f | sed 's/-/_/g')"
+        check_function $f || die "Missing $f():	build function in file/buildscript: $BUILDSCRIPT"
+        done
+	# running the build functions for packages and subpackages
+	for f in $package $subpackage; do
+	msg "Running: $f()"
+        eval "$(echo $f | sed 's/()/ /g')"
+	# important fixed: if version is not present in the f() build function, give warning
+	if [ -z $version ]; then
+	warning "Missing version= in function: $f() "
+	else
+	version=
+	fi
+        done
+	msg "Passed sanitycheck:"
+}
+
+usage() {
+	msg "$0 ($VERSION) A shell script package builder"
+        msg "Usage: file/buildscript --options"
+        echo
+}
+
+if [ -z $1 ]; then
+	usage && die "file/buildscript not provided "
+fi
+
+if [ -f $BUILDSCRIPT ]; then
+	msg "Found: $BUILDSCRIPT"
+	msg "PWD: $PWD"
+	msg "Processing: $BUILDSCRIPT"
+	. ./$BUILDSCRIPT
+	sanitycheck
+elif [ [0-9]*\* ]; then
+	msg "Found: TOOLCHAIN"
+	msg "PWD: $PWD"
+	ls [0-9]*
+	for f in [0-9]*; do
+	msg "Processing: $f"
+	. ./$f
+	sanitycheck
+	done
+else
+	error "No BUILDSCRIPT or TOOLCHAIN Found!"
+	exit 1
+fi

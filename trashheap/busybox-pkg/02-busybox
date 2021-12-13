@@ -1,0 +1,15 @@
+#!/bin/sh
+# Maintainer: mischief chris <mischiefchristohe@gmail.com>
+
+package=busybox
+subpackage=
+source="https://www.busybox.net/downloads/busybox-1.33.0.tar.bz2
+	config"
+
+busybox() {
+	cd $SOURCE/busybox-2.33.0
+	#cp $SOURCE/config .config
+	make defconfig
+	make
+	install -Dm0755 busybox $INSTALL_DIR/bin/busybox
+}
